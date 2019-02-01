@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Code Editor</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/codemirror.min.css" />
+		<meta charset="utf8">
+		<style>
+body {
+	padding: 0;
+	margin: 0;
+	font-family: monospace;
+}
+.msg {
+	padding: 4px 8px;
+	font-size: 12px;
+}
+.msg-error { color: #f00; }
+.msg-warn { color: #aa0; }
+.msg-info { color: #00f; }
+.msg-log { color: #000; }
+
+#console {
+	border-bottom: 2px;
+	border-top: 2px solid #888;
+	padding: 8px;
+}
+#buttons {
+	background: #35a;
+	padding: 8px;
+	text-align: center;
+	color: #fff;
+}
+#buttons span, #buttons button, #buttons select {
+	padding: 4px 8px;
+	display: inline-block;
+}
+#buttons button, #buttons select {
+	color: #fff;
+	background: #888;
+	border: 0;
+	cursor: pointer;
+}
+		</style>
+	</head>
+	<body>
+	<div id="buttons">
+		<select style="float:left" id="lang">
+			<option>JavaScript</option>
+			<option>CoffeeScript</option>			
+		</select>
+		<span>Code Editor</span>
+		<button type="button" id="run" style="float:right">Run</button>
+	</div>
+	<div id="console"></div>
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/codemirror.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/javascript/javascript.min.js"></script>
+	<script src="https://coffeescript.org/v2/browser-compiler/coffeescript.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.43.0/mode/coffeescript/coffeescript.min.js"></script>
+	<script>
+(function() {
+	function addText(text, type) {
+		var line = document.createElement("div");
+		line.innerText = text.toString();
+		line.classList.add("msg");
+		if(type)
+			line.classList.add(type);
+		document.getElementById("console").appendChild(line);
+	}
+
+	var console_log = console.log; 
+	console.log = function(text) {
+		console_log.apply(console, Array.prototype.slice.call(arguments));
+		addText(Array.prototype.slice.call(arguments).join(" "), "msg-log");
+	};
+
+	var console_warn = console.warn; 
+	console.warn = function(text) {
+		console_warn.apply(console, Array.prototype.slice.call(arguments));
+		addText(Array.prototype.slice.call(arguments).join(" "), "msg-warn");
+	};
+
+	var console_info = console.info; 
+	console.info = function(text) {
+		console_info.apply(console, Array.prototype.slice.call(arguments));
+		addText(Array.prototype.slice.call(arguments).join(" "), "msg-info");
+	};
+
+	var console_error = console.error; 
+	console.error = function(text) {
+		console_error.apply(console, Array.prototype.slice.call(arguments));
+		addText(Array.prototype.slice.call(arguments).join(" "), "msg-error");
+	};
+
+
+	var console_clear = console.clear;
+	console.clear = function() {
+		console_clear();
+		document.getElementById("console").innerHTML = "";		
+	};
+
+	window.addEventListener("error", function(err) {
+		console.error(err.message + " (line " + err.lineno + ")");
+	})
+})();
+
+window.addEventListener("load", function() {
+	var lang = "JavaScript";
+	var editor = CodeMirror(function(e) {
+		document.body.insertBefore(e, document.getElementById("console"));
+	}, {
+		value: "console.log(\"Hello world\");",
+		indentUnit: 4,
+		lineNumbers: true,
+		smartIndent: true,
+		indentWithTabs: true,
+		theme: "default"
+	});
+
+	function updateLang() {
+		editor.setOption("mode", lang.toLowerCase());		
+	}
+
+	document.getElementById("lang").onchange = function() {
+		lang = this.value;
+
+		updateLang();
+	}
+
+
+	var run = document.getElementById("run");
+	run.onclick = function() {
+		console.clear();
+		switch(lang) {
+			case "JavaScript":
+				eval(editor.getValue());
+				break;
+			case "CoffeeScript":
+				eval(CoffeeScript.compile(editor.getValue()));
+				break;
+		}
+	}
+});	
+	</script>
+	</body>
+</html>
