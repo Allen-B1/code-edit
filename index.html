@@ -50,6 +50,7 @@ body {
 		</select>
 		<span>Code Editor</span>
 		<button type="button" id="run" style="float:right">Run</button>
+		<button type="button" id="save" style="float:right;margin-right:8px">Save</button>		
 	</div>
 	<div id="console"></div>
 	
@@ -109,7 +110,7 @@ window.addEventListener("load", function() {
 	var editor = CodeMirror(function(e) {
 		document.body.insertBefore(e, document.getElementById("console"));
 	}, {
-		value: "console.log(\"Hello world\");",
+		value: "// Hello world\nconsole.log(\"Hello world\");",
 		indentUnit: 4,
 		lineNumbers: true,
 		smartIndent: true,
@@ -127,7 +128,6 @@ window.addEventListener("load", function() {
 		updateLang();
 	}
 
-
 	var run = document.getElementById("run");
 	run.onclick = function() {
 		console.clear();
@@ -139,6 +139,26 @@ window.addEventListener("load", function() {
 				eval(CoffeeScript.compile(editor.getValue()));
 				break;
 		}
+	}
+
+	document.getElementById("save").onclick = function() {
+		var val = editor.getValue();
+
+		var title = "code";		
+		if (val[0] == "/" && val[1] == "/") {
+			var index = val.indexOf("\n");
+			if (index < 0) index = val.length;
+			var line = val.slice(0, index);
+			title = line.slice(2).trim().replace(/\s+/g, "_") || title;
+		}
+	
+		var a = document.createElement("a");
+		a.style.display = "none";
+		a.href = "data:text/html," + encodeURI(val)		
+		a.download = title + "." + (lang === "CoffeeScript" ? "coffee" : "js");
+		document.body.appendChild(a);
+		a.click();
+		a.remove();		
 	}
 });	
 	</script>
