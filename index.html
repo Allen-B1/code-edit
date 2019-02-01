@@ -145,11 +145,11 @@ window.addEventListener("load", function() {
 		var val = editor.getValue();
 
 		var title = "code";		
-		if (val[0] == "/" && val[1] == "/") {
+		if ((val[0] == "/" && val[1] == "/") || val[0] == "#") {
 			var index = val.indexOf("\n");
 			if (index < 0) index = val.length;
 			var line = val.slice(0, index);
-			title = line.slice(2).trim().replace(/\s+/g, "_") || title;
+			title = line.slice(val[0] == "#" ? 1 : 2).trim().replace(/\s+/g, "_") || title;
 		}
 	
 		var a = document.createElement("a");
