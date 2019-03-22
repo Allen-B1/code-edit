@@ -125,22 +125,23 @@ body, button, select {
 	})
 })();
 
-(function() {
-	/* Configure Skulpt */
-	Sk.pre = "output";
-	var buffer = "";
-	Sk.configure({output:function(val) {
-		buffer += val;
-		if (buffer.endsWith("\n")) {
-			console.log(buffer);
-			buffer = "";
-		}
-	}, read: function(x) {
-	    if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
-	            throw "File not found: '" + x + "'";
-	    return Sk.builtinFiles["files"][x];
-	}});
-})();
+if (window.Sk)
+	(function() {
+		/* Configure Skulpt */
+		Sk.pre = "output";
+		var buffer = "";
+		Sk.configure({output:function(val) {
+			buffer += val;
+			if (buffer.endsWith("\n")) {
+				console.log(buffer);
+				buffer = "";
+			}
+		}, read: function(x) {
+		    if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+			    throw "File not found: '" + x + "'";
+		    return Sk.builtinFiles["files"][x];
+		}});
+	})();
 
 window.addEventListener("load", function() {
 	var editor = CodeMirror(function(e) {
